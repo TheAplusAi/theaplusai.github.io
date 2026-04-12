@@ -26,9 +26,7 @@ app = Flask(__name__)
 # Enable CORS for all domains (restrict this in production)
 CORS(app)
 
-@app.route('/chat', methods=['POST'])
-def chat():
-    try:
+try:
         # Safely parse the JSON payload
         req_data = request.get_json(silent=True)
         if not req_data or "message" not in req_data:
