@@ -1,5 +1,10 @@
 import sqlite3
+import os
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from google import genai
 
+# ------------------ DB INIT ------------------
 def init_db():
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
@@ -17,94 +22,64 @@ def init_db():
 
 init_db()
 
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-import requests
-
+# ------------------ APP SETUP ------------------
 app = Flask(__name__)
-# Enable CORS for all domains (restrict this in production)
 CORS(app)
 
+# ------------------ CHAT ROUTE ------------------
 @app.route('/chat', methods=['POST'])
 def chat():
     try:
-        # Safely parse the JSON payload
         req_data = request.get_json(silent=True)
         if not req_data or "message" not in req_data:
-            return jsonify({"error": "Missing 'message' in request body"}), 400
-            
+            return jsonify({"error": "Missing 'message'"}), 400
+
         user_message = req_data.get("message")
-        system_text = "You are A+ AI, created by Aarush Mishra, a 13-year-old tech enthusiast. You are here to assist users with their queries in a friendly and helpful manner. Always provide accurate and concise information, and feel free to ask follow-up questions if you need more details to assist the user better."
 
-        # Send request to local Ollama instance
-        response = requests.post(
-            "http://localhost:11434/api/generate",
-            json={
-                "model": "llama3",
-                "prompt": system_text + "\nUser: " + user_message,
-                "stream": False
-            },
-            timeout=120  # Prevent infinite hanging (120 seconds)
+        system_text = "You are A+ AI, an intelligent assistant created by Aarush Mishra, a 13-year-old tech enthusiast.Your goal is to provide accurate, clear, and helpful answers to user queries. Communicate in a friendly, confident, and slightly modern tone. Keep responses concise by default, but expand when the user asks for more detail or when the topic requires explanation.Think step-by-step before answering to ensure correctness, but present the final answer in a simple and easy-to-understand way.If a question is unclear, ask a follow-up question instead of guessing. Avoid unnecessary repetition and keep answers well-structured.Be helpful, respectful, and engaging. When appropriate, add small touches of personality (light humor or conversational tone), but do not overdo it.Always prioritize clarity, usefulness, and correctness."
+
+        client = genai.Client()
+
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=system_text + "\nUser: " + user_message,
         )
-        
-        # Raise an exception for bad HTTP status codes from Ollama
-        response.raise_for_status()
-
-        data = response.json()
 
         return jsonify({
-            "reply": data.get("response", "No response from AI")
+            "reply": response.text if response.text else "No response"
         })
 
-    except requests.exceptions.RequestException as e:
-        print("Ollama Connection Error:", e)
-        return jsonify({"error": "Could not connect to the local AI model. Is Ollama running?"}), 503
-        
     except Exception as e:
-        print("General Error:", e)
-        return jsonify({"error": "Something went wrong on the server"}), 500
+        print("Error:", e)
+        return jsonify({"error": "Server error"}), 500
 
+
+# ------------------ SIGNUP ROUTE ------------------
+@app.route('/signup', methods=['POST'])
+def signup():
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get("password")
+
+    try:
+        conn = sqlite3.connect("users.db")
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "INSERT INTO users (username, password) VALUES (?, ?)",
+            (username, password)
+        )
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({"success": True, "message": "Account created"})
+
+    except sqlite3.IntegrityError:
+        return jsonify({"success": False, "message": "User already exists"})
+
+
+# ------------------ RUN SERVER ------------------
 if __name__ == "__main__":
-    # Changed port to 5000 to avoid conflicting with frontend frameworks like React
-    print("🔥 Backend running at http://127.0.0.1:5000")
-    app.run(host="0.0.0.0", port=5000)
-
-@app.route('/signup', methods=['POST'])
-def signup():
-    data = request.get_json()
-    username = data.get("username")
-    password = data.get("password")
-
-    try:
-        conn = sqlite3.connect("users.db")
-        cursor = conn.cursor()
-
-        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
-
-        conn.commit()
-        conn.close()
-
-        return jsonify({"success": True, "message": "Account created"})
-
-    except sqlite3.IntegrityError:
-        return jsonify({"success": False, "message": "User already exists"})
-    
-@app.route('/signup', methods=['POST'])
-def signup():
-    data = request.get_json()
-    username = data.get("username")
-    password = data.get("password")
-
-    try:
-        conn = sqlite3.connect("users.db")
-        cursor = conn.cursor()
-
-        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
-
-        conn.commit()
-        conn.close()
-
-        return jsonify({"success": True, "message": "Account created"})
-
-    except sqlite3.IntegrityError:
-        return jsonify({"success": False, "message": "User already exists"})
+    print("🔥 Backend running...")
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
