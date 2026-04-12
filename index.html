@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A+ AI</title>
+    <link rel="stylesheet" href="style.css"></head>
+
+<body>
+    <div id="top-bar">
+        <button onclick="openUpgradeModal()">Upgrade Plan</button>
+    
+        <div style="margin-left:auto;"></div>
+    
+        <button id="loginBtn" onclick="openAuthModal()">Login or Sign Up</button>
+    
+        <div id="profileIcon" onclick="logout()" style="display:none;">
+            👤
+        </div>
+    </div>
+    
+    <img src="logo.png" height="150">
+
+    <HR>
+
+    <div class="chat-popup" id="myForm">
+        <div class="form-container">
+            <h2>Chat</h2>
+
+            <div id="chat-messages">
+                <!-- Messages -->
+            </div>
+
+            <div class="input-area">
+                <textarea id="msg-input" placeholder="Type a message..."></textarea>
+                <button onclick="sendMessage()">Send</button></div>
+            </div>
+        </div>
+    </div>
+    <hr>
+
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <h2>Login / Sign Up</h2>
+    
+            <input type="email" id="email" placeholder="email">
+            <input type="password" id="password" placeholder="password">
+        <button type="button" onclick="login()">Login</button>
+        <button type="button" onclick="signup()">Create Account</button>
+            <button onclick="closeAuthModal()">Close</button><hr><button onclick="googleLogin()" class="google-btn">
+                Continue with Google
+            </button>
+            <hr>
+        </div>
+    </div>
+</body>
+<script src="script.js"></script>
+</html>
