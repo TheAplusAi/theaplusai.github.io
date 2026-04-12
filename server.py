@@ -1,5 +1,4 @@
 import sqlite3
-import os
 
 def init_db():
     conn = sqlite3.connect("users.db")
@@ -26,7 +25,9 @@ app = Flask(__name__)
 # Enable CORS for all domains (restrict this in production)
 CORS(app)
 
-try:
+@app.route('/chat', methods=['POST'])
+def chat():
+    try:
         # Safely parse the JSON payload
         req_data = request.get_json(silent=True)
         if not req_data or "message" not in req_data:
@@ -66,7 +67,7 @@ try:
 if __name__ == "__main__":
     # Changed port to 5000 to avoid conflicting with frontend frameworks like React
     print("🔥 Backend running at http://127.0.0.1:5000")
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(host="0.0.0.0", port=5000)
 
 @app.route('/signup', methods=['POST'])
 def signup():
