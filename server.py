@@ -39,7 +39,7 @@ def chat():
         prompt = system_text + "\nUser: " + user_message
 
         # ✅ CORRECT GEMINI USAGE
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-pro")
         response = model.generate_content(prompt)
 
         reply = response.text if hasattr(response, "text") else None
