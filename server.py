@@ -8,7 +8,9 @@ app = Flask(__name__)
 CORS(app)
 
 # ------------------ CONFIG ------------------
-client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+client = genai.Client(
+    api_key=os.environ.get("GEMINI_API_KEY")
+)
 
 # ------------------ TEST ROUTE ------------------
 @app.route('/')
@@ -26,19 +28,14 @@ def chat():
 
         user_message = data["message"]
 
-        system_text = (
-            "You are A+ AI, an intelligent assistant created by Aarush Mishra. "
-            "Give clear, helpful, and slightly modern responses."
-        )
-
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents=system_text + "\nUser: " + user_message
+            model="gemini-3-flash-preview",  # ✅ from official docs
+            contents=user_message
         )
 
-        reply = response.text if response.text else "No response from AI"
-
-        return jsonify({"reply": reply})
+        return jsonify({
+            "reply": response.text
+        })
 
     except Exception as e:
         print("🔥 ERROR:", str(e))
