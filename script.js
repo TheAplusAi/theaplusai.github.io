@@ -1,3 +1,4 @@
+// ------------------ SEND MESSAGE ------------------
 async function sendMessage() {
     const input = document.getElementById("msg-input");
     const message = input.value.trim();
@@ -32,7 +33,8 @@ async function sendMessage() {
         console.error("CHAT ERROR:", err);
         addMessage("⚠️ Error connecting to AI", "ai");
     }
-} ------------------ ADD MESSAGE UI ------------------
+}
+// ------------------ ADD MESSAGE UI ------------------
 function addMessage(text, sender) {
     const chat = document.getElementById("chat-messages");
     const msg = document.createElement("div");
