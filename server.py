@@ -42,7 +42,7 @@ def chat():
 
         # Send system + user message together
         response = client.models.generate_content(
-            model="Gemini-3-Flash-preview",  # change if needed
+            model="Gemini-1.5-PRO",  # change if needed
             contents=[
                 SYSTEM_INSTRUCTION,
                 user_message
