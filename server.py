@@ -30,7 +30,7 @@ def chat():
         user_message = data["message"]
 
         response = client.chat.completions.create(
-            model="llama3-70b-8192",  # 🔥 fast + powerful
+            model="llama-3.1-8b-instant",  # 🔥 fast + powerful
             messages=[
                 {"role": "system", "content": "You are A+ AI created by Aarush. Be helpful and modern."},
                 {"role": "user", "content": user_message}
