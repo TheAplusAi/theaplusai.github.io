@@ -1,19 +1,14 @@
 import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import google.generativeai as genai
+from google import genai
 
 # ------------------ APP SETUP ------------------
 app = Flask(__name__)
 CORS(app)
 
 # ------------------ CONFIG ------------------
-API_KEY = os.environ.get("GEMINI_API_KEY")
-
-if not API_KEY:
-    print("❌ API KEY NOT FOUND")
-
-genai.configure(api_key=API_KEY)
+client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
 # ------------------ TEST ROUTE ------------------
 @app.route('/')
@@ -36,16 +31,12 @@ def chat():
             "Give clear, helpful, and slightly modern responses."
         )
 
-        prompt = system_text + "\nUser: " + user_message
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=system_text + "\nUser: " + user_message
+        )
 
-        # ✅ CORRECT GEMINI USAGE
-        model = genai.GenerativeModel("gemini-pro")
-        response = model.generate_content(prompt)
-
-        reply = response.text if hasattr(response, "text") else None
-
-        if not reply:
-            reply = "AI did not return a response."
+        reply = response.text if response.text else "No response from AI"
 
         return jsonify({"reply": reply})
 
