@@ -1,30 +1,61 @@
+import os
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import google.generativeai as genai
+
+# ------------------ APP SETUP ------------------
+app = Flask(__name__)
+CORS(app)
+
+# ------------------ CONFIG ------------------
+# Get API key from Render environment
+API_KEY = os.environ.get("GEMINI_API_KEY")
+
+if not API_KEY:
+    print("❌ API KEY NOT FOUND")
+
+genai.configure(api_key=API_KEY)
+
+# ------------------ TEST ROUTE ------------------
+@app.route('/')
+def home():
+    return "Backend is running 🚀"
+
+# ------------------ CHAT ROUTE ------------------
 @app.route('/chat', methods=['POST'])
 def chat():
     try:
-        req_data = request.get_json(silent=True)
-        if not req_data or "message" not in req_data:
-            return jsonify({"error": "Missing 'message'"}), 400
+        data = request.get_json()
 
-        user_message = req_data.get("message")
+        if not data or "message" not in data:
+            return jsonify({"error": "No message provided"}), 400
 
-        system_text = "You are A+ AI, an intelligent assistant created by Aarush Mishra, a 13-year-old tech enthusiast. Your goal is to provide accurate, clear, and helpful answers."
+        user_message = data["message"]
 
-        # ✅ FIX: API key added
-        client = genai.Client(api_key=os.environ.get("AIzaSyAYHvyOL5RucFz_-NUEaGVbJ58oD9D2kDE"))
-
-        response = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents=system_text + "\nUser: " + user_message,
+        system_text = (
+            "You are A+ AI, an intelligent assistant created by Aarush Mishra. "
+            "Give clear, helpful, and slightly modern responses."
         )
 
-        # ✅ safer response handling
-        reply_text = getattr(response, "text", None)
+        prompt = system_text + "\nUser: " + user_message
 
-        if not reply_text:
-            reply_text = "AI did not return a response."
+        response = genai.generate_text(
+            model="gemini-1.5-flash",
+            prompt=prompt
+        )
 
-        return jsonify({"reply": reply_text})
+        reply = response.result if hasattr(response, "result") else None
+
+        if not reply:
+            reply = "AI did not return a response."
+
+        return jsonify({"reply": reply})
 
     except Exception as e:
-        print("🔥 FULL ERROR:", str(e))
+        print("🔥 ERROR:", str(e))
         return jsonify({"error": str(e)}), 500
+
+# ------------------ RUN SERVER ------------------
+if __name__ == "__main__":
+    print("🔥 Server starting...")
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
