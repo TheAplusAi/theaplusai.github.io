@@ -8,8 +8,8 @@ app = Flask(__name__)
 CORS(app)
 
 # ------------------ CONFIG ------------------
-# Get API key from Render environment
 API_KEY = os.environ.get("GEMINI_API_KEY")
+
 if not API_KEY:
     print("❌ API KEY NOT FOUND")
 
@@ -38,12 +38,11 @@ def chat():
 
         prompt = system_text + "\nUser: " + user_message
 
-        response = genai.generate_text(
-            model="gemini-1.5-flash",
-            prompt=prompt
-        )
+        # ✅ CORRECT GEMINI USAGE
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(prompt)
 
-        reply = response.result if hasattr(response, "result") else None
+        reply = response.text if hasattr(response, "text") else None
 
         if not reply:
             reply = "AI did not return a response."
