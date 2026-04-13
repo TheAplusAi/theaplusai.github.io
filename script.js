@@ -9,7 +9,7 @@ async function sendMessage() {
     input.value = "";
 
     try {
-        const res = await fetch("https://theaplusai-github-io.onrender.com", {
+        const res = await fetch("https://theaplusai-github-io.onrender.com/chat", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
