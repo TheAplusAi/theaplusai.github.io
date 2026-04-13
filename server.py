@@ -9,8 +9,7 @@ CORS(app)
 
 # ------------------ CONFIG ------------------
 # Get API key from Render environment
-API_KEY = os.environ.get("AIzaSyAYHvyOL5RucFz_-NUEaGVbJ58oD9D2kDE")
-
+API_KEY = os.environ.get("GEMINI_API_KEY")
 if not API_KEY:
     print("❌ API KEY NOT FOUND")
 
