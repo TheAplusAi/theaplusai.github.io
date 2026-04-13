@@ -7,10 +7,22 @@ from google import genai
 app = Flask(__name__)
 CORS(app)
 
-# ------------------ CONFIG ------------------
+# ------------------ GEMINI CLIENT ------------------
 client = genai.Client(
     api_key=os.environ.get("GEMINI_API_KEY")
 )
+
+# ------------------ SYSTEM INSTRUCTION (EDIT THIS) ------------------
+SYSTEM_INSTRUCTION = """
+You are A+ AI, a helpful assistant inside a web app created by Aarush Mishra.
+
+Guidelines:
+- Talk in a respectful, friendly, and slightly cool tone.
+- Keep responses clear and not too long unless asked.
+- If asked who created you, respond: "Aarush Mishra created me."
+- Do not invent extra personal details about the creator.
+- Focus on being helpful with coding, tech, and general questions.
+"""
 
 # ------------------ TEST ROUTE ------------------
 @app.route('/')
@@ -28,9 +40,13 @@ def chat():
 
         user_message = data["message"]
 
+        # Send system + user message together
         response = client.models.generate_content(
-            model="gemini-3-flash-preview",  # ✅ from official docs
-            contents=user_message
+            model="gemini-3-flash-preview",  # change if needed
+            contents=[
+                SYSTEM_INSTRUCTION,
+                user_message
+            ]
         )
 
         return jsonify({
@@ -40,6 +56,7 @@ def chat():
     except Exception as e:
         print("🔥 ERROR:", str(e))
         return jsonify({"error": str(e)}), 500
+
 
 # ------------------ RUN SERVER ------------------
 if __name__ == "__main__":
