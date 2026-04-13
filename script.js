@@ -1,4 +1,3 @@
-// ------------------ SEND MESSAGE ------------------
 async function sendMessage() {
     const input = document.getElementById("msg-input");
     const message = input.value.trim();
@@ -19,16 +18,21 @@ async function sendMessage() {
 
         const data = await res.json();
 
-        addMessage(data.reply || "No response from AI", "ai");
+        // ✅ FIXED ERROR HANDLING
+        if (data.reply) {
+            addMessage(data.reply, "ai");
+        } else if (data.error) {
+            console.error("BACKEND ERROR:", data.error);
+            addMessage("⚠️ " + data.error, "ai");
+        } else {
+            addMessage("No response from AI", "ai");
+        }
 
     } catch (err) {
         console.error("CHAT ERROR:", err);
         addMessage("⚠️ Error connecting to AI", "ai");
     }
-}
-
-
-// ------------------ ADD MESSAGE UI ------------------
+} ------------------ ADD MESSAGE UI ------------------
 function addMessage(text, sender) {
     const chat = document.getElementById("chat-messages");
     const msg = document.createElement("div");
