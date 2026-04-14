@@ -1,4 +1,6 @@
-// ------------------ SEND MESSAGE ------------------
+function showComingSoon() {
+    alert("Coming Soon 🚧"); // temporary test
+}
 async function sendMessage() {
     const input = document.getElementById("msg-input");
     const message = input.value.trim();
