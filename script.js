@@ -109,3 +109,15 @@ async function signup() {
         alert("Signup error");
     }
 }
+
+function showComingSoon() {
+    const el = document.getElementById("topAlert");
+
+    if (!el) return;
+
+    el.classList.add("show");
+
+    setTimeout(() => {
+        el.classList.remove("show");
+    }, 2500);
+}
