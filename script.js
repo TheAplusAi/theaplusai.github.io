@@ -1,6 +1,4 @@
-const API_BASE = "https://theaplusai-github-io.onrender.com";
-
-// ------------------ CHAT ------------------
+// ------------------ SEND MESSAGE ------------------
 async function sendMessage() {
     const input = document.getElementById("msg-input");
     const message = input.value.trim();
@@ -11,31 +9,32 @@ async function sendMessage() {
     input.value = "";
 
     try {
-        const res = await fetch(`${API_BASE}/chat`, {
+        const res = await fetch("https://theaplusai-github-io.onrender.com/chat", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ message })
+            body: JSON.stringify({ message: message })
         });
 
         const data = await res.json();
 
+        // ✅ FIXED ERROR HANDLING
         if (data.reply) {
             addMessage(data.reply, "ai");
         } else if (data.error) {
+            console.error("BACKEND ERROR:", data.error);
             addMessage("⚠️ " + data.error, "ai");
         } else {
             addMessage("No response from AI", "ai");
         }
 
     } catch (err) {
-        console.error(err);
+        console.error("CHAT ERROR:", err);
         addMessage("⚠️ Error connecting to AI", "ai");
     }
 }
-
-// ------------------ UI MESSAGE ------------------
+// ------------------ ADD MESSAGE UI ------------------
 function addMessage(text, sender) {
     const chat = document.getElementById("chat-messages");
     const msg = document.createElement("div");
@@ -60,7 +59,8 @@ function addMessage(text, sender) {
     chat.scrollTop = chat.scrollHeight;
 }
 
-// ------------------ ENTER KEY ------------------
+
+// ------------------ ENTER KEY SEND ------------------
 document.getElementById("msg-input").addEventListener("keydown", function (e) {
     if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
@@ -68,7 +68,8 @@ document.getElementById("msg-input").addEventListener("keydown", function (e) {
     }
 });
 
-// ------------------ LOGIN MODAL ------------------
+
+// ------------------ MODAL ------------------
 function openAuthModal() {
     document.getElementById("authModal").style.display = "flex";
 }
@@ -77,18 +78,19 @@ function closeAuthModal() {
     document.getElementById("authModal").style.display = "none";
 }
 
-// ------------------ SIGNUP ------------------
+
+// ------------------ SIGNUP ONLY (LOGIN REMOVED FOR NOW) ------------------
 async function signup() {
     const email = document.getElementById("email").value;
     const pass = document.getElementById("password").value;
 
     if (!email || !pass) {
-        alert("Enter details");
+        alert("Enter details bro");
         return;
     }
 
     try {
-        const res = await fetch(`${API_BASE}/signup`, {
+        const res = await fetch("https://theaplusai-github-io.onrender.com/signup", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -102,47 +104,8 @@ async function signup() {
         const data = await res.json();
         alert(data.message);
 
-        // 🔥 LOGIN STATE
-        localStorage.setItem("user", email);
-
-        document.getElementById("loginBtn").style.display = "none";
-        document.getElementById("profileIcon").style.display = "block";
-
-        closeAuthModal();
-
     } catch (err) {
-        console.error(err);
+        console.error("SIGNUP ERROR:", err);
         alert("Signup error");
     }
-}
-
-// ------------------ LOGOUT ------------------
-function logout() {
-    localStorage.removeItem("user");
-
-    document.getElementById("loginBtn").style.display = "inline-block";
-    document.getElementById("profileIcon").style.display = "none";
-}
-
-// ------------------ PERSIST LOGIN ------------------
-window.onload = function () {
-    const user = localStorage.getItem("user");
-
-    if (user) {
-        document.getElementById("loginBtn").style.display = "none";
-        document.getElementById("profileIcon").style.display = "block";
-    }
-};
-
-// ------------------ TOP ALERT ------------------
-function showComingSoon() {
-    const el = document.getElementById("topAlert");
-
-    if (!el) return;
-
-    el.classList.add("show");
-
-    setTimeout(() => {
-        el.classList.remove("show");
-    }, 2500);
 }
