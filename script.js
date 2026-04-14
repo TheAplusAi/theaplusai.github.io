@@ -113,7 +113,15 @@ async function signup() {
 function showComingSoon() {
     const el = document.getElementById("topAlert");
 
-    if (!el) return;
+    if (!el) {
+        console.error("topAlert not found in HTML");
+        return;
+    }
+
+    el.classList.remove("show"); // reset animation
+
+    // force reflow (makes animation always work)
+    void el.offsetWidth;
 
     el.classList.add("show");
 
