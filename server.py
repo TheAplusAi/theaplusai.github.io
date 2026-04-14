@@ -56,3 +56,34 @@ def chat():
 if __name__ == "__main__":
     print("🔥 Server starting...")
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
+
+chat_history = []
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    global chat_history
+
+    data = request.get_json()
+    user_message = data["message"]
+
+    chat_history.append({"role": "user", "content": user_message})
+
+    response = client.chat.completions.create(
+        model="llama-3.1-70b-versatile",
+        messages=[
+            {"role": "system", "content": "You are A+ AI created by Aarush. Do not repeat intro."}
+        ] + chat_history
+    )
+
+    reply = response.choices[0].message.content
+
+    chat_history.append({"role": "system", "content": 
+"You are A+ AI created by Aarush Mishra. "
+"Be helpful, modern, and clear. "
+"DO NOT introduce yourself again and again. "
+"Only introduce yourself if the user asks who you are. "
+"Do not repeat greetings every message."
+})
+
+    return jsonify({"reply": reply})
