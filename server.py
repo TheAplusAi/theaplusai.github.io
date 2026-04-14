@@ -13,6 +13,9 @@ client = OpenAI(
     base_url="https://api.groq.com/openai/v1"
 )
 
+# ------------------ MEMORY ------------------
+chat_history = []
+
 # ------------------ TEST ROUTE ------------------
 @app.route('/')
 def home():
@@ -21,6 +24,8 @@ def home():
 # ------------------ CHAT ROUTE ------------------
 @app.route('/chat', methods=['POST'])
 def chat():
+    global chat_history
+
     try:
         data = request.get_json()
 
@@ -29,59 +34,37 @@ def chat():
 
         user_message = data["message"]
 
+        # Add user message
+        chat_history.append({"role": "user", "content": user_message})
+
+        # System prompt (only once at start)
+        system_prompt = {
+            "role": "system",
+            "content": (
+                "You are A+ AI, created by Aarush Mishra. "
+                "Be helpful, modern, and clear. "
+                "Do NOT introduce yourself repeatedly. "
+                "Only introduce yourself if asked."
+            )
+        }
+
         response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",  # 🔥 fast + powerful
-            messages=[
-                {"role": "system", "content": 
-"You are A+ AI, created by Aarush Mishra, a 13-year-old tech enthusiast from India and tell only if asked. "
-"You are smart, friendly, and slightly modern in tone. "
-"You help with coding, school work, tech, and general questions. "
-"Keep answers clear and easy to understand. "
-"Sometimes use a casual tone like a teenager but stay helpful and respectful. "
-}
-            ]
+            model="llama-3.1-8b-instant",
+            messages=[system_prompt] + chat_history
         )
 
         reply = response.choices[0].message.content
 
-        return jsonify({
-            "reply": reply
-        })
+        # Add AI reply
+        chat_history.append({"role": "assistant", "content": reply})
+
+        return jsonify({"reply": reply})
 
     except Exception as e:
         print("🔥 ERROR:", str(e))
         return jsonify({"error": str(e)}), 500
 
+
 # ------------------ RUN SERVER ------------------
 if __name__ == "__main__":
-    print("🔥 Server starting...")
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
-
-
-chat_history = []
-
-global chat_history
-
-    data = request.get_json()
-    user_message = data["message"]
-
-    chat_history.append({"role": "user", "content": user_message})
-
-    response = client.chat.completions.create(
-        model="llama-3.1-70b-versatile",
-        messages=[
-            {"role": "system", "content": "You are A+ AI created by Aarush. Do not repeat intro."}
-        ] + chat_history
-    )
-
-    reply = response.choices[0].message.content
-
-    chat_history.append({"role": "system", "content": 
-"You are A+ AI created by Aarush Mishra. "
-"Be helpful, modern, and clear. "
-"DO NOT introduce yourself again and again. "
-"Only introduce yourself if the user asks who you are. "
-"Do not repeat greetings every message."
-})
-
-    return jsonify({"reply": reply})
