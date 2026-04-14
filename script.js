@@ -1,6 +1,3 @@
-function showComingSoon() {
-    alert("Coming Soon 🚧"); // temporary test
-}
 async function sendMessage() {
     const input = document.getElementById("msg-input");
     const message = input.value.trim();
@@ -111,12 +108,17 @@ async function signup() {
         alert("Signup error");
     }
 }
-
 function showComingSoon() {
-    const alert = document.getElementById("topAlert");
-    alert.classList.add("show");
+    const el = document.getElementById("topAlert");
+
+    if (!el) {
+        alert("topAlert not found");
+        return;
+    }
+
+    el.classList.add("show");
 
     setTimeout(() => {
-        alert.classList.remove("show");
+        el.classList.remove("show");
     }, 2500);
 }
