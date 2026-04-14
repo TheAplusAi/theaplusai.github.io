@@ -60,9 +60,7 @@ if __name__ == "__main__":
 
 chat_history = []
 
-@app.route('/chat', methods=['POST'])
-def chat():
-    global chat_history
+global chat_history
 
     data = request.get_json()
     user_message = data["message"]
