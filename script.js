@@ -109,3 +109,12 @@ async function signup() {
         alert("Signup error");
     }
 }
+
+function showComingSoon() {
+    const alert = document.getElementById("topAlert");
+    alert.classList.add("show");
+
+    setTimeout(() => {
+        alert.classList.remove("show");
+    }, 2500);
+}
