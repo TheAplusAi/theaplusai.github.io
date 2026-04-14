@@ -1,3 +1,6 @@
+const API_BASE = "https://theaplusai-github-io.onrender.com";
+
+// ------------------ CHAT ------------------
 async function sendMessage() {
     const input = document.getElementById("msg-input");
     const message = input.value.trim();
@@ -8,33 +11,31 @@ async function sendMessage() {
     input.value = "";
 
     try {
-        const res = await fetch("https://theaplusai-github-io.onrender.com/chat", {
+        const res = await fetch(`${API_BASE}/chat`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify({ message })
         });
 
         const data = await res.json();
 
-        // ✅ FIXED ERROR HANDLING
         if (data.reply) {
             addMessage(data.reply, "ai");
         } else if (data.error) {
-            console.error("BACKEND ERROR:", data.error);
             addMessage("⚠️ " + data.error, "ai");
         } else {
             addMessage("No response from AI", "ai");
         }
 
     } catch (err) {
-        console.error("CHAT ERROR:", err);
+        console.error(err);
         addMessage("⚠️ Error connecting to AI", "ai");
     }
 }
 
-// ------------------ ADD MESSAGE UI ------------------
+// ------------------ UI MESSAGE ------------------
 function addMessage(text, sender) {
     const chat = document.getElementById("chat-messages");
     const msg = document.createElement("div");
@@ -59,8 +60,7 @@ function addMessage(text, sender) {
     chat.scrollTop = chat.scrollHeight;
 }
 
-
-// ------------------ ENTER KEY SEND ------------------
+// ------------------ ENTER KEY ------------------
 document.getElementById("msg-input").addEventListener("keydown", function (e) {
     if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
@@ -68,8 +68,7 @@ document.getElementById("msg-input").addEventListener("keydown", function (e) {
     }
 });
 
-
-// ------------------ MODAL ------------------
+// ------------------ LOGIN MODAL ------------------
 function openAuthModal() {
     document.getElementById("authModal").style.display = "flex";
 }
@@ -78,19 +77,18 @@ function closeAuthModal() {
     document.getElementById("authModal").style.display = "none";
 }
 
-
-// ------------------ SIGNUP ONLY (LOGIN REMOVED FOR NOW) ------------------
+// ------------------ SIGNUP ------------------
 async function signup() {
     const email = document.getElementById("email").value;
     const pass = document.getElementById("password").value;
 
     if (!email || !pass) {
-        alert("Enter details bro");
+        alert("Enter details");
         return;
     }
 
     try {
-        const res = await fetch("https://theaplusai-github-io.onrender.com/signup", {
+        const res = await fetch(`${API_BASE}/signup`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -104,19 +102,43 @@ async function signup() {
         const data = await res.json();
         alert(data.message);
 
+        // 🔥 LOGIN STATE
+        localStorage.setItem("user", email);
+
+        document.getElementById("loginBtn").style.display = "none";
+        document.getElementById("profileIcon").style.display = "block";
+
+        closeAuthModal();
+
     } catch (err) {
-        console.error("SIGNUP ERROR:", err);
+        console.error(err);
         alert("Signup error");
     }
 }
 
+// ------------------ LOGOUT ------------------
+function logout() {
+    localStorage.removeItem("user");
+
+    document.getElementById("loginBtn").style.display = "inline-block";
+    document.getElementById("profileIcon").style.display = "none";
+}
+
+// ------------------ PERSIST LOGIN ------------------
+window.onload = function () {
+    const user = localStorage.getItem("user");
+
+    if (user) {
+        document.getElementById("loginBtn").style.display = "none";
+        document.getElementById("profileIcon").style.display = "block";
+    }
+};
+
+// ------------------ TOP ALERT ------------------
 function showComingSoon() {
     const el = document.getElementById("topAlert");
 
-    if (!el) {
-        alert("topAlert not found");
-        return;
-    }
+    if (!el) return;
 
     el.classList.add("show");
 
