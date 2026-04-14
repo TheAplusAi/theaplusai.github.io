@@ -33,6 +33,7 @@ async function sendMessage() {
         addMessage("⚠️ Error connecting to AI", "ai");
     }
 }
+
 // ------------------ ADD MESSAGE UI ------------------
 function addMessage(text, sender) {
     const chat = document.getElementById("chat-messages");
@@ -108,6 +109,7 @@ async function signup() {
         alert("Signup error");
     }
 }
+
 function showComingSoon() {
     const el = document.getElementById("topAlert");
 
