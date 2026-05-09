@@ -1,3 +1,4 @@
+
 // ------------------ SEND MESSAGE ------------------
 async function sendMessage() {
     const input = document.getElementById("msg-input");
